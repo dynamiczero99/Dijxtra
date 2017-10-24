@@ -136,6 +136,7 @@ public:
 	// Propagation style
 	void PropagateBFS();
 	void PropagateDijkstra();
+	void PropagateAStar();
 
 private:
 
@@ -156,6 +157,7 @@ private:
 	pugi::xml_document	map_file;
 	p2SString			folder;
 	bool				map_loaded;
+	iPoint				goal;
 
 	/// BFS
 	p2PQueue<iPoint>	frontier;
@@ -164,6 +166,7 @@ private:
 	uint				cost_so_far[COST_MAP][COST_MAP];
 	p2DynArray<iPoint>	path;
 	SDL_Texture*		tile_x = nullptr;
+	iPoint				a_star_goal;
 };
 
 #endif // __j1MAP_H__
