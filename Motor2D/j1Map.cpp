@@ -56,22 +56,11 @@ void j1Map::Path(int x, int y)
 
 void j1Map::PropagateDijkstra()
 {
-	// TODO 3: Taking BFS as a reference, implement the Dijkstra algorithm
-	// use the 2 dimensional array "cost_so_far" to track the accumulated costs
-	// on each cell (is already reset to 0 automatically)
 	iPoint curr;
 	uint new_cost;
 
-	p2PQueue_item<iPoint>*	frontier_guard = frontier.start;
-
-	while (frontier_guard != frontier.GetLast())
-	{
-		if (frontier_guard->data == goal)
-			return;
-
-		frontier_guard = frontier_guard->next;
-	}
-	
+	if (visited.find(goal) != -1)
+		return;
 
 	if (frontier.Pop(curr))
 	{
@@ -107,6 +96,18 @@ void j1Map::PropagateAStar()
 {
 	iPoint curr;
 	uint new_cost;
+
+	//This checks if the goal has been visited, so that the pathfinding stops once it gets to its destination
+	p2List_item<iPoint>*	visited_iterator = visited.start;
+
+	while (visited.find(goal) != -1)
+	{
+		if (visited_iterator->data == goal)
+			return;
+
+		visited_iterator = visited_iterator->next;
+	}
+
 	if (frontier.Pop(curr))
 	{
 		iPoint neighbors[4];
@@ -117,16 +118,16 @@ void j1Map::PropagateAStar()
 
 		for (uint i = 0; i < 4; ++i)
 		{
-			new_cost = cost_so_far[curr.x][curr.y] + MovementCost(neighbors[i].x, neighbors[i].y);
+			new_cost = cost_so_far[curr.x][curr.y] + MovementCost(neighbors[i].x, neighbors[i].y); // adding the cost of the neighbor that is currently being checked to the total cost of the path so far
 
-			if (neighbors[i].x >= 0 && neighbors[i].x < data.width && neighbors[i].y >= 0 && neighbors[i].y < data.height)
+			if (neighbors[i].x >= 0 && neighbors[i].x < data.width && neighbors[i].y >= 0 && neighbors[i].y < data.height) // checking if the tile is inside the map area
 			{
 				if (!cost_so_far[neighbors[i].x][neighbors[i].y] || new_cost < cost_so_far[neighbors[i].x][neighbors[i].y])
 				{
 					if (visited.find(neighbors[i]) == -1)
 					{
 						cost_so_far[neighbors[i].x][neighbors[i].y] = new_cost;
-						frontier.Push(neighbors[i], new_cost);
+						frontier.Push(neighbors[i], new_cost + neighbors[i].DistanceNoSqrt(goal));
 						visited.add(neighbors[i]);
 						breadcrumbs.add(curr);
 					}
@@ -155,9 +156,6 @@ int j1Map::MovementCost(int x, int y) const
 
 void j1Map::PropagateBFS()
 {
-	// TODO 1: Record the direction to the previous node 
-	// with the new list "breadcrumbs"
-
 	iPoint curr;
 	if (frontier.Pop(curr))
 	{
